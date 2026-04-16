@@ -464,13 +464,14 @@ function getTreatments() {
 }
 
 function generateReceiptNumber() {
-  const n = new Date();
-  return n.getFullYear().toString()
-    + String(n.getMonth()+1).padStart(2,"0")
-    + String(n.getDate()).padStart(2,"0")
-    + "-"
-    + String(n.getHours()).padStart(2,"0")
-    + String(n.getMinutes()).padStart(2,"0");
+  const yy = String(new Date().getFullYear()).slice(-2);
+  const stored = (() => { try { return JSON.parse(localStorage.getItem("slp_receipt_counter")); } catch { return null; } })();
+  let next = 1;
+  if (stored && stored.year === yy) {
+    next = (stored.next || 1);
+  }
+  localStorage.setItem("slp_receipt_counter", JSON.stringify({ year: yy, next: next + 1 }));
+  return yy + String(next).padStart(3, "0");
 }
 
 function validate() {
@@ -544,8 +545,8 @@ function generateReceipt() {
     ctx.fillStyle="#fff"; ctx.font=`bold ${s(10)}px Heebo, sans-serif`;
     ctx.fillText("קבלה", W/2, by+s(12));
 
-    ctx.fillStyle="#9b93b8"; ctx.font=`${s(7)}px Heebo, sans-serif`;
-    ctx.fillText("מס׳ " + receiptNum, W/2, by+s(26));
+    ctx.fillStyle="#9b93b8"; ctx.font=`bold ${s(9.5)}px Heebo, sans-serif`;
+    ctx.fillText("מס׳ " + receiptNum, W/2, by+s(28));
 
     ctx.strokeStyle="#d4ccf0"; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(s(35),s(124)); ctx.lineTo(W-s(35),s(124)); ctx.stroke();
