@@ -221,17 +221,7 @@
   .history-item .info .meta { color:#94a3b8; font-size:12px; margin-top:2px; }
   .history-item .amount { color:#34d399; font-weight:700; font-size:16px; }
 
-  .save-note {
-    background:rgba(52,211,153,.1);
-    border:1px solid rgba(52,211,153,.3);
-    border-radius:12px; padding:12px 16px;
-    margin-top:12px; text-align:center;
-    color:#34d399; font-size:13px; font-weight:500;
-    display:none; animation:fadeUp .3s ease;
-  }
-  .save-note.show { display:block; }
-
-  .folder-instructions {
+.folder-instructions {
     background:rgba(167,139,250,.08);
     border:1px solid rgba(167,139,250,.2);
     border-radius:14px; padding:16px;
@@ -298,7 +288,6 @@
       <span>📄</span> הפק קבלה
     </button>
 
-    <div class="save-note" id="saveNote"></div>
   </div>
 
   <div class="history-toggle">
@@ -688,25 +677,8 @@ function finalizePDF(canvas, name, fmtPayDate, fmtTotal, receiptNum, totalAmount
       document.getElementById("overlaySum").textContent = "₪" + fmtTotal;
       document.getElementById("overlay").classList.add("show");
 
-      const saveNote = document.getElementById("saveNote");
-      saveNote.textContent = '✅ הקבלה הורדה: "' + lastPdfName + '"';
-      saveNote.classList.add("show");
-      setTimeout(() => saveNote.classList.remove("show"), 8000);
-
-      document.getElementById("clientName").value="";
-      document.getElementById("notes").value="";
-      document.getElementById("payDate").value=new Date().toISOString().slice(0,10);
-      document.getElementById("treatmentsList").innerHTML="";
-      treatmentCount=0; addTreatment();
-      clearSignature();
-
       btn.disabled=false;
       btn.innerHTML="<span>📄</span> הפק קבלה";
-
-      setTimeout(()=>{
-        downloadPDF();
-        setTimeout(()=>exportAllToExcel(), 500);
-      }, 300);
     };
     reader.readAsDataURL(blob);
   }, "image/png", 1.0);
@@ -731,7 +703,15 @@ function downloadPDF() {
   document.body.removeChild(a);
 }
 
-function closeOverlay() { document.getElementById("overlay").classList.remove("show"); }
+function closeOverlay() {
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById("clientName").value="";
+  document.getElementById("notes").value="";
+  document.getElementById("payDate").value=new Date().toISOString().slice(0,10);
+  document.getElementById("treatmentsList").innerHTML="";
+  treatmentCount=0; addTreatment();
+  clearSignature();
+}
 
 function getHistory() {
   try { return JSON.parse(localStorage.getItem("slp_receipts2"))||[]; } catch { return []; }
