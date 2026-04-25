@@ -329,6 +329,9 @@ let lastPdfName = "";
 let historyVisible = false;
 let treatmentCount = 0;
 
+// הכנס כאן את כתובת ה-Web App לאחר פריסת Google Apps Script
+const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxge-ke5qUbVk51EmgXcePPqa1Hd66IwO1ZA1vJDS-R8nfJD7cKxTknQUW7A6dqA6QAAw/exec";
+
 /* ====== מנוע חתימה ידנית ====== */
 const sigCanvas = document.getElementById("sigPad");
 const sigCtx = sigCanvas.getContext("2d");
@@ -672,6 +675,7 @@ function finalizePDF(canvas, name, fmtPayDate, fmtTotal, receiptNum, totalAmount
         timestamp: new Date().toLocaleString("he-IL")
       };
       saveToHistory(historyItem);
+      sendToGoogleSheets(historyItem);
 
       document.getElementById("overlayNum").textContent = "קבלה מס׳ " + receiptNum;
       document.getElementById("overlaySum").textContent = "₪" + fmtTotal;
@@ -721,6 +725,16 @@ function saveToHistory(item) {
   if(h.length>500) h.pop();
   localStorage.setItem("slp_receipts2", JSON.stringify(h));
   if(historyVisible) renderHistory();
+}
+
+function sendToGoogleSheets(data) {
+  if (!GOOGLE_SHEETS_SCRIPT_URL) return;
+  fetch(GOOGLE_SHEETS_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify(data)
+  }).catch(function() {});
 }
 function toggleHistory() {
   const el=document.getElementById("historyList");
